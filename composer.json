@@ -1,0 +1,17 @@
+{
+
+    "name": "khandieyea/xeroci",
+    
+    "autoload": {
+       "psr-4": {
+           // "XeroCi": "src/"
+           "XeroCi": "src" 
+       }
+       
+   	},
+    "require": {
+       "guzzlehttp/oauth-subscriber": "0.1.x",
+        "php": ">=5.5.9"
+    }
+
+}
