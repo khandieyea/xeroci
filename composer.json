@@ -1,13 +1,11 @@
 {
 
     "name": "khandieyea/xeroci",
-    
+    "license": "GPLv2",
     "autoload": {
        "psr-4": {
-           // "XeroCi": "src/"
            "XeroCi": "src" 
        }
-       
    	},
     "require": {
        "guzzlehttp/oauth-subscriber": "0.1.x",
