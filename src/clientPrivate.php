@@ -55,6 +55,8 @@ class ClientPrivate extends Client {
 		
 		$defaults = ($guzzle_conf->hasKey('defaults') ? $guzzle_conf['defaults'] : []);
 		
+		$guzzle_conf->remove('defaults');
+		
 		if(!isset($defaults['auth']) || $defaults['auth'] != 'oauth')
 			$defaults['auth'] = 'oauth';
 			
