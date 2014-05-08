@@ -44,7 +44,10 @@ class ClientPrivate extends Client {
 		
 		//If our config has a guzzle_conf, lets merge the passed in and set the config['guzzle_conf'] as default
 		
-		$guzzle_conf = \Collection::fromConfig($guzzle_conf,  ( $config->hasKey('guzzle_conf') ? $config->get('guzzle_conf') : []));
+		$guzzle_conf = Collection::fromConfig(
+			$guzzle_conf,  
+			( $config->hasKey('guzzle_conf') ? $config->get('guzzle_conf') : [])
+		);
 		
 		
 		if(!$guzzle_conf->hasKey('base_url'))
