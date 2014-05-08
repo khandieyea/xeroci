@@ -39,21 +39,29 @@ class ClientPrivate extends Client {
 			$this->configRequired()
 		);
 
+		//Reuse the consumer_key as the token.
 		$config->add('token', $config->get('consumer_key'));
-
-		if(!isset($guzzle_conf['base_url']))
-			$guzzle_conf['base_url'] = $config->get('base_endpoint');
-
+		
+		//If our config has a guzzle_conf, lets merge the passed in and set the config['guzzle_conf'] as default
+		
+		$guzzle_conf = \Collection::fromConfig($guzzle_conf,  ( $config->hasKey('guzzle_conf') ? $config->get('guzzle_conf') : []));
+		
+		
+		if(!$guzzle_conf->hasKey('base_url'))
+			$guzzle_conf->add('base_url', $config->get('base_endpoint'));
+		
+		$defaults = ($guzzle_conf->hasKey('defaults') ? $guzzle_conf['defaults'] : []);
+		
+		if(!isset($defaults['auth']) || $defaults['auth'] != 'oauth')
+			$defaults['auth'] = 'oauth';
+			
+		$guzzle_conf->add('defaults', $defaults);	
+	
 		if($config->hasKey('base_endpoint'))
 			$config->remove('base_endpoint');
 
-		if(!isset($guzzle_conf['defaults']))
-			$guzzle_conf['defaults'] = [];
-
-		if(!isset($guzzle_conf['defaults']['auth']) || $guzzle_conf['defaults']['auth'] != 'oauth')
-			$guzzle_conf['defaults']['auth'] = 'oauth';
-
-		parent::__construct($guzzle_conf);
+			
+		parent::__construct($guzzle_conf->toArray());
 
 		parent::getEmitter()->attach(
 			new \GuzzleHttp\Subscriber\Oauth\Oauth1(
