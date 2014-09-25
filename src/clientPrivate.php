@@ -176,5 +176,46 @@ class ClientPrivate extends Client {
 
 	}
 
+	public function post($url = null, array $options = [])
+    	{
+    		return $this->_reroute_request($url, $options, 'post');
+    	}
+
+    	private function _reroute_request($url, $options=[], $verb='')
+    	{
+
+    		if(isset($options['xml']))
+    		{
+
+    			if(is_array($options['xml']) && !isset($options['body']))
+    			{
+    			
+    				$body = $options['xml'];
+
+
+    				$cutpos = strpos($url, '?');
+
+    				$node = $url; 
+
+    				if($cutpos !== false)
+    					$node = substr($node, 0, $cutpos);
+
+    				$node = trim($node, '/');
+
+    				//Override body
+    				$options['body'] = \ArrayToXML::toXML($body, $node);
+
+
+    			}
+    		
+    			//Always remove the xml key from options.. even if it doesn't work.
+    			unset($options['xml']);
+    		
+    		}
+
+        	return parent::$verb($url, $options);
+
+    	}
+
 
 }
