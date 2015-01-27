@@ -158,6 +158,8 @@ class ClientPrivate extends Client {
 		if( ( $secret = $this->getDefaultPrivateKeyFile() ) !== false ) 
 		{
 			$r['consumer_secret'] = $secret;
+			$r['private_key_file'] = $secret;
+
 		}
 
 		return $r;
