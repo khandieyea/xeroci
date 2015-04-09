@@ -184,6 +184,13 @@ class ClientPrivate extends Client {
 	{
 		return $this->_reroute_request($url, $options, 'post');
 	}
+	
+	public function put($url = null, array $options = [])
+	{
+		return $this->_reroute_request($url, $options, 'post');
+	}
+	
+	
 
 	private function _reroute_request($url, $options=[], $verb='')
 	{
@@ -217,7 +224,7 @@ class ClientPrivate extends Client {
 		
 		}
 
-    	return parent::$verb($url, $options);
+    		return parent::$verb($url, $options);
 
 	}
 
