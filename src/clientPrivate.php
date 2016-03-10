@@ -1,10 +1,10 @@
 <?php
 namespace XeroCi;
 
-use \GuzzleHttp\Client;
-use \GuzzleHttp\Collection;
+// use \GuzzleHttp\Client;
+// use \GuzzleHttp\Collection;
 
-class ClientPrivate extends Client {
+class ClientPrivate extends \GuzzleHttp\Client {
 	
 	private $defaultPrivateConfigPath = '/xeroci/private_application';
 
@@ -33,46 +33,73 @@ class ClientPrivate extends Client {
 		if(isset($xero_conf['signature_method']))
 			unset($xero_conf['signature_method']);
 
-		$config = Collection::fromConfig(
-			Collection::fromConfig($xero_conf, $fileConfig)->toArray(), 
-			$this->configDefaults(), 
-			$this->configRequired()
-		);
+		$config = ( $xero_conf + $fileConfig + $this->configDefaults() );
+
+		// $config = Collection::fromConfig(	
+		// 	Collection::fromConfig($xero_conf, $fileConfig)->toArray(), 
+		// 	$this->configDefaults(), 
+		// 	$this->configRequired()
+		// );
 
 		//Reuse the consumer_key as the token.
-		$config->add('token', $config->get('consumer_key'));
+		if(isset($config['consumer_key']))
+			$config['token'] = $config['consumer_key'];
+		
+		// $config->add('token', $config->get('consumer_key'));
 		
 		//If our config has a guzzle_conf, lets merge the passed in and set the config['guzzle_conf'] as default
 		
-		$guzzle_conf = Collection::fromConfig(
-			$guzzle_conf,  
-			( $config->hasKey('guzzle_conf') ? $config->get('guzzle_conf') : [])
-		);
+		// $guzzle_conf['xml'] = 'something';
+		// $guzzle_conf['defaults'] = ['headers'=>['Accept'=>'something']];
+
+		if(isset($config['guzzle_conf']))
+			$guzzle_conf += $config['guzzle_conf'];
 		
+		// $guzzle_conf = Collection::fromConfig(
+		// 	$guzzle_conf,  
+		// 	( isset($config['guzzle_conf']) ? $config['guzzle_conf'] : [])
+		// );
 		
-		if(!$guzzle_conf->hasKey('base_url'))
-			$guzzle_conf->add('base_url', $config->get('base_endpoint'));
+		if(!isset($guzzle_conf['base_uri']))
+			$guzzle_conf['base_uri'] = $config['base_endpoint'];
+
+		// if(!$guzzle_conf->hasKey('base_url'))
+		// 	$guzzle_conf->add('base_url', $config->get('base_endpoint'));
 		
-		$defaults = ($guzzle_conf->hasKey('defaults') ? $guzzle_conf['defaults'] : []);
-		
-		$guzzle_conf->remove('defaults');
-		
-		if(!isset($defaults['auth']) || $defaults['auth'] != 'oauth')
-			$defaults['auth'] = 'oauth';
+
+		// $defaults = (isset($guzzle_conf['defaults']) ? $guzzle_conf['defaults'] : []);
+
+		// $defaults = ($guzzle_conf->hasKey('defaults') ? $guzzle_conf['defaults'] : []);
 			
-		$guzzle_conf->add('defaults', $defaults);	
+		// unset($guzzle_conf['defaults']);
+
+		// $guzzle_conf->remove('defaults');
+
+
+		if(!isset($guzzle_conf['auth']) || $guzzle_conf['auth'] != 'oauth')
+			$guzzle_conf['auth'] = 'oauth';
+
+
+		// $guzzle_conf['defaults'] = $defaults;
+		// $guzzle_conf->add('defaults', $defaults);	
+		
 	
-		if($config->hasKey('base_endpoint'))
-			$config->remove('base_endpoint');
+		if( isset( $config['base_endpoint']) )
+			unset($config['base_endpoint']);
 
-			
-		parent::__construct($guzzle_conf->toArray());
+		// if($config->hasKey('base_endpoint'))
+		// 	$config->remove('base_endpoint');
 
-		parent::getEmitter()->attach(
-			new \GuzzleHttp\Subscriber\Oauth\Oauth1(
-				$config->toArray()
-			)
-		);
+
+		$stack = \GuzzleHttp\HandlerStack::create();
+		$stack->push( new \GuzzleHttp\Subscriber\Oauth\Oauth1($config) );
+		
+		
+		$guzzle_conf['handler'] = $stack;
+
+
+
+		parent::__construct($guzzle_conf);
 
 		return $this;
 
