@@ -5,7 +5,7 @@ namespace XeroCi;
 // use \GuzzleHttp\Collection;
 
 class ClientPrivate extends \GuzzleHttp\Client {
-	
+
 	private $defaultPrivateConfigPath = '/xeroci/private_application';
 
 	private $defaultConfigFile 		= 'config.php';
@@ -17,16 +17,17 @@ class ClientPrivate extends \GuzzleHttp\Client {
 	function __construct($xero_conf=[], $guzzle_conf=[])
 	{
 
+
 		$fileConfig = false;
 
 		if(isset($xero_conf['file_config']))
 			$fileConfig = $this->getFileConfig($xero_conf['file_config']);
 		else
 			$fileConfig = $this->getFileConfig();
-		
+
 		if($fileConfig === false)
 			$fileConfig = [];
-		
+
 		if(isset($xero_conf['file_config']))
 			unset($xero_conf['file_config']); //You cant pass a file_config with in the file config.
 
@@ -35,42 +36,42 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 		$config = ( $xero_conf + $fileConfig + $this->configDefaults() );
 
-		// $config = Collection::fromConfig(	
-		// 	Collection::fromConfig($xero_conf, $fileConfig)->toArray(), 
-		// 	$this->configDefaults(), 
+		// $config = Collection::fromConfig(
+		// 	Collection::fromConfig($xero_conf, $fileConfig)->toArray(),
+		// 	$this->configDefaults(),
 		// 	$this->configRequired()
 		// );
 
 		//Reuse the consumer_key as the token.
 		if(isset($config['consumer_key']))
 			$config['token'] = $config['consumer_key'];
-		
+
 		// $config->add('token', $config->get('consumer_key'));
-		
+
 		//If our config has a guzzle_conf, lets merge the passed in and set the config['guzzle_conf'] as default
-		
+
 		// $guzzle_conf['xml'] = 'something';
 		// $guzzle_conf['defaults'] = ['headers'=>['Accept'=>'something']];
 
 		if(isset($config['guzzle_conf']))
 			$guzzle_conf += $config['guzzle_conf'];
-		
+
 		// $guzzle_conf = Collection::fromConfig(
-		// 	$guzzle_conf,  
+		// 	$guzzle_conf,
 		// 	( isset($config['guzzle_conf']) ? $config['guzzle_conf'] : [])
 		// );
-		
+
 		if(!isset($guzzle_conf['base_uri']))
 			$guzzle_conf['base_uri'] = $config['base_endpoint'];
 
 		// if(!$guzzle_conf->hasKey('base_url'))
 		// 	$guzzle_conf->add('base_url', $config->get('base_endpoint'));
-		
+
 
 		// $defaults = (isset($guzzle_conf['defaults']) ? $guzzle_conf['defaults'] : []);
 
 		// $defaults = ($guzzle_conf->hasKey('defaults') ? $guzzle_conf['defaults'] : []);
-			
+
 		// unset($guzzle_conf['defaults']);
 
 		// $guzzle_conf->remove('defaults');
@@ -81,9 +82,9 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 
 		// $guzzle_conf['defaults'] = $defaults;
-		// $guzzle_conf->add('defaults', $defaults);	
-		
-	
+		// $guzzle_conf->add('defaults', $defaults);
+
+
 		if( isset( $config['base_endpoint']) )
 			unset($config['base_endpoint']);
 
@@ -93,8 +94,8 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 		$stack = \GuzzleHttp\HandlerStack::create();
 		$stack->push( new \GuzzleHttp\Subscriber\Oauth\Oauth1($config) );
-		
-		
+
+
 		$guzzle_conf['handler'] = $stack;
 
 
@@ -104,19 +105,19 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		return $this;
 
 	}
-	
+
 	public function getDefaultFileConfigPaths()
 	{
 
 		$ch = ['//','\\','\\\\','/'];
 
-		$base = defined('CI_BASE_PATH') ? CI_BASE_PATH : (isset($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : '');
+		$base = defined('CI_BASE_PATH') ? CI_BASE_PATH : (isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : getcwd());
 
 		return [
 			str_replace($ch, DIRECTORY_SEPARATOR, $base.DIRECTORY_SEPARATOR.APPPATH.'config'.DIRECTORY_SEPARATOR.ENVIRONMENT.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
 			str_replace($ch, DIRECTORY_SEPARATOR, $base.DIRECTORY_SEPARATOR.APPPATH.'config'.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
 		];
-		
+
 	}
 
 	public function getDefaultBaseEndPoint()
@@ -133,11 +134,10 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		{
 			if(is_readable($p.DIRECTORY_SEPARATOR.$this->defaultPrivateKeyFile))
 			{
-
 				return $p.DIRECTORY_SEPARATOR.$this->defaultPrivateKeyFile;
 			}
 		}
-		
+
 		return NULL;
 
 	}
@@ -157,9 +157,9 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 		foreach($path as $p)
 		{
-			
-			$file = $p.DIRECTORY_SEPARATOR.$this->defaultConfigFile;
 
+			$file = ($p.DIRECTORY_SEPARATOR.$this->defaultConfigFile);
+			
 			if(is_readable($file) && is_file($file))
 			{
 
@@ -168,7 +168,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 			}
 
 		}
-			
+
 		return false;
 
 	}
@@ -182,7 +182,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 			'signature_method' => 'RSA-SHA1'
 		];
 
-		if( ( $secret = $this->getDefaultPrivateKeyFile() ) !== false ) 
+		if( ( $secret = $this->getDefaultPrivateKeyFile() ) !== false )
 		{
 			$r['consumer_secret'] = $secret;
 			$r['private_key_file'] = $secret;
@@ -192,7 +192,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		return $r;
 
 	}
-	
+
 
 	private function configRequired()
 	{
@@ -204,52 +204,57 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		];
 
 	}
-	
+
 
 
 	public function post($url = null, array $options = [])
 	{
 		return $this->_reroute_request($url, $options, 'post');
 	}
-	
+
 	public function put($url = null, array $options = [])
 	{
 		return $this->_reroute_request($url, $options, 'post');
 	}
-	
-	
+
+	public function putAsync($url = null, array $options = [])
+	{
+		return $this->_reroute_request($url, $options, 'putAsync');
+	}
+
+
 
 	private function _reroute_request($url, $options=[], $verb='')
 	{
 
-		if(isset($options['xml']))
-		{
-
-			if(is_array($options['xml']) && !isset($options['body']))
+			if(isset($options['xml']))
 			{
-			
-				$body = $options['xml'];
+				if(is_array($options['xml']) && !isset($options['body']))
+				{
+
+					$body = $options['xml'];
+
+					$cutpos = max(strpos($url,'/'), strpos($url, '?'));
+
+					$node = $url;
+
+					if($cutpos !== false)
+						$node = substr($node, 0, $cutpos);
+
+					$node = trim($node, '/');
 
 
-				$cutpos = strpos($url, '?');
+					//Override body
+					$options['body'] = \ArrayToXML::toXML($body, $node);
 
-				$node = $url; 
 
-				if($cutpos !== false)
-					$node = substr($node, 0, $cutpos);
 
-				$node = trim($node, '/');
+				}
 
-				//Override body
-				$options['body'] = \ArrayToXML::toXML($body, $node);
-
+				//Always remove the xml key from options.. even if it doesn't work.
+				unset($options['xml']);
 
 			}
-		
-			//Always remove the xml key from options.. even if it doesn't work.
-			unset($options['xml']);
-		
-		}
 
     		return parent::$verb($url, $options);
 
