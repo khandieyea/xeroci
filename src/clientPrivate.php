@@ -14,6 +14,11 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 	private $defaultBaseEndPoint 	= 'https://api.xero.com/api.xro/2.0/';
 
+
+	// private $nodeMap = [
+		//
+	// ]
+
 	function __construct($xero_conf=[], $guzzle_conf=[])
 	{
 
@@ -159,7 +164,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		{
 
 			$file = ($p.DIRECTORY_SEPARATOR.$this->defaultConfigFile);
-			
+
 			if(is_readable($file) && is_file($file))
 			{
 
@@ -214,7 +219,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 	public function put($url = null, array $options = [])
 	{
-		return $this->_reroute_request($url, $options, 'post');
+		return $this->_reroute_request($url, $options, 'put');
 	}
 
 	public function putAsync($url = null, array $options = [])
@@ -234,19 +239,21 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 					$body = $options['xml'];
 
-					$cutpos = max(strpos($url,'/'), strpos($url, '?'));
-
 					$node = $url;
+					$cutpos = strpos($node, '?');
 
 					if($cutpos !== false)
 						$node = substr($node, 0, $cutpos);
 
-					$node = trim($node, '/');
+					$cutpos = strrpos($node,'/');
 
+					if($cutpos !== false)
+						$node = substr($node,$cutpos);
+
+					$node = trim($node, '/');
 
 					//Override body
 					$options['body'] = \ArrayToXML::toXML($body, $node);
-
 
 
 				}
