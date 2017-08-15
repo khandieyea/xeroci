@@ -119,8 +119,8 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		$base = defined('CI_BASE_PATH') ? CI_BASE_PATH : (isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : getcwd());
 
 		return [
-			str_replace($ch, DIRECTORY_SEPARATOR, $base.DIRECTORY_SEPARATOR.APPPATH.'config'.DIRECTORY_SEPARATOR.ENVIRONMENT.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
-			str_replace($ch, DIRECTORY_SEPARATOR, $base.DIRECTORY_SEPARATOR.APPPATH.'config'.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
+			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'.DIRECTORY_SEPARATOR.ENVIRONMENT.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
+			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
 		];
 
 	}
