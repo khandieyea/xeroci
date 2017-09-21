@@ -14,6 +14,10 @@ class RateControl {
   /*
     The bucket we consume tokens from.
   */
+	static $bucket = null;
+  /*
+    The consumer bucket, will sleep untill tokens are available.
+  */
 	static $consumerBucket = null;
 
   /*
@@ -33,6 +37,8 @@ class RateControl {
 
 		$this->storageClientCreds = is_array($storage) ? $storage : [];
 
+		$this->getConsumerBucket();
+
 
 	}
 
@@ -43,7 +49,7 @@ class RateControl {
 
 			$consumer = $this->getConsumerBucket();
 
-      //Sleep until we get green-lit
+      		//Sleep until we get green-lit
 			$consumer->consume(1);
 
 			return $handler($request ,	$options);
@@ -53,21 +59,28 @@ class RateControl {
 	}
 
 
-  private function getConsumerBucket(): BlockingConsumer
-  {
-    return static::$consumerBucket ?? $this->buildConsumerBucket();
-  }
+	private function getConsumerBucket(): BlockingConsumer
+	{
+		return static::$consumerBucket ?? $this->buildConsumerBucket();
+	}
 
 
-  private function buildConsumerBucket(): BlockingConsumer
-  {
-    return (static::$consumerBucket = new BlockingConsumer(new TokenBucket( 30, new Rate(0.5, Rate::SECOND), $this->getBucketStorage() )));
-  }
+	private function buildConsumerBucket(): BlockingConsumer
+	{
+		static::$bucket = new TokenBucket( 30, new Rate(0.5, Rate::SECOND), $this->getBucketStorage() );
 
-  private function getBucketStorage(): TokenBucketStorage
-  {
-    return new TokenBucketStorage($this->throttleKey.'xero.api', new \Predis\Client($this->storageClientCreds));
-  }
+		return (static::$consumerBucket = new BlockingConsumer(static::$bucket));
+	}
+
+	private function getBucketStorage(): TokenBucketStorage
+	{
+		return new TokenBucketStorage($this->throttleKey.'xero.api', new \Predis\Client($this->storageClientCreds));
+	}
+
+	static function bootstrap()
+	{
+		return static::$bucket->bootstrap(static::$bucket->getCapacity());
+	}
 
 
 }
