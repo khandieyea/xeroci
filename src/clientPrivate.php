@@ -103,15 +103,15 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 		$guzzle_conf['handler']->push( new \GuzzleHttp\Subscriber\Oauth\Oauth1($config) );
 
-
-		if(isset($guzzle_conf['ratecontrol']))
+		if(isset($config['ratecontrol']))
 		{
-			$guzzle_conf['handler']->push(new rateControl($guzzle_conf['ratecontrol'], ($config['token']??'')));
 
-			unset($guzzle_conf['ratecontrol']);
+			$guzzle_conf['handler']->push(new rateControl($config['ratecontrol'], ($config['token']??'')));
+
+			unset($config['ratecontrol']);
+
 		}
-
-
+		
 		parent::__construct($guzzle_conf);
 
 		return $this;
