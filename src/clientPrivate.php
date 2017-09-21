@@ -97,12 +97,19 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		// 	$config->remove('base_endpoint');
 
 
-		$stack = \GuzzleHttp\HandlerStack::create();
-		$stack->push( new \GuzzleHttp\Subscriber\Oauth\Oauth1($config) );
+
+		if(!isset($guzzle_conf['handler']))
+			$guzzle_conf['handler'] = \GuzzleHttp\HandlerStack::create();
+
+		$guzzle_conf['handler']->push( new \GuzzleHttp\Subscriber\Oauth\Oauth1($config) );
 
 
-		$guzzle_conf['handler'] = $stack;
+		if(isset($guzzle_conf['ratecontrol']))
+		{
+			$guzzle_conf['handler']->push(new rateControl($guzzle_conf['ratecontrol'], ($config['token']??'')));
 
+			unset($guzzle_conf['ratecontrol']);
+		}
 
 
 		parent::__construct($guzzle_conf);
@@ -121,6 +128,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		return [
 			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'.DIRECTORY_SEPARATOR.ENVIRONMENT.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
 			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
+			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'),
 		];
 
 	}
@@ -263,7 +271,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 			}
 
-    		return parent::$verb($url, $options);
+    	return parent::$verb($url, $options);
 
 	}
 

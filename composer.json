@@ -4,12 +4,13 @@
     "license": "GPLv2",
     "autoload": {
        "psr-4": {
-           "XeroCi\\": "src" 
+           "XeroCi\\": "src"
        }
    	},
     "require": {
-       "guzzlehttp/oauth-subscriber": "0.3.*",
-        "php": ">=5.5.9"
+      "guzzlehttp/oauth-subscriber": "0.3.*",
+      "bandwidth-throttle/token-bucket": "^1.1",
+      "predis/predis": "^1.1"
     }
 
 }
