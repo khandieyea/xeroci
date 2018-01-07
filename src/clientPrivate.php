@@ -251,7 +251,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 
 
-	private function _reroute_request($url, $options=[], $verb='')
+	public function _reroute_request($url, $options=[], $verb='')
 	{
 
 			if(isset($options['xml']))
