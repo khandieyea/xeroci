@@ -218,11 +218,25 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 	}
 
-
+	
+	public function get($url = null, array $options = [])
+	{
+		return $this->_reroute_request($url, $options, 'get');
+	}
+	
+	public function getAsync($url = null, array $options = [])
+	{
+		return $this->_reroute_request($url, $options, 'getAsync');
+	}
 
 	public function post($url = null, array $options = [])
 	{
 		return $this->_reroute_request($url, $options, 'post');
+	}
+	
+	public function postAsync($url = null, array $options = [])
+	{
+		return $this->_reroute_request($url, $options, 'postAsync');
 	}
 
 	public function put($url = null, array $options = [])
