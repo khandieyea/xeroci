@@ -1,7 +1,6 @@
 {
 
     "name": "khandieyea/xeroci",
-    "license": "GPLv2",
     "autoload": {
        "psr-4": {
            "XeroCi\\": "src"
