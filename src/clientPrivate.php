@@ -14,7 +14,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 	private $defaultBaseEndPoint 	= 'https://api.xero.com/api.xro/2.0/';
 
-
+	var 	$config_toggle		 = 0;
 	// private $nodeMap = [
 		//
 	// ]
@@ -22,6 +22,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 	function __construct($xero_conf=[], $guzzle_conf=[])
 	{
 
+		$this->config_toggle = rand(0,1);
 
 		$fileConfig = false;
 
@@ -97,7 +98,6 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		// 	$config->remove('base_endpoint');
 
 
-
 		if(!isset($guzzle_conf['handler']))
 			$guzzle_conf['handler'] = \GuzzleHttp\HandlerStack::create();
 
@@ -111,7 +111,9 @@ class ClientPrivate extends \GuzzleHttp\Client {
 			unset($config['ratecontrol']);
 
 		}
-		
+
+		// echo pre($guzzle_conf);
+
 		parent::__construct($guzzle_conf);
 
 		return $this;
@@ -126,9 +128,10 @@ class ClientPrivate extends \GuzzleHttp\Client {
 		$base = defined('CI_BASE_PATH') ? CI_BASE_PATH : (isset($_SERVER['DOCUMENT_ROOT']) && !empty($_SERVER['DOCUMENT_ROOT']) ? $_SERVER['DOCUMENT_ROOT'] : getcwd());
 
 		return [
+			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'.DIRECTORY_SEPARATOR.ENVIRONMENT.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath.'_'.$this->config_toggle),
 			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'.DIRECTORY_SEPARATOR.ENVIRONMENT.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
 			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'.DIRECTORY_SEPARATOR.$this->defaultPrivateConfigPath),
-			str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'),
+			// str_replace($ch, DIRECTORY_SEPARATOR, APPPATH.'config'),
 		];
 
 	}
@@ -207,8 +210,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 	}
 
 
-	private function configRequired()
-	{
+	private function configRequired() {
 
 		return [
 			'consumer_key',
@@ -218,12 +220,12 @@ class ClientPrivate extends \GuzzleHttp\Client {
 
 	}
 
-	
+
 	public function get($url = null, array $options = [])
 	{
 		return $this->_reroute_request($url, $options, 'get');
 	}
-	
+
 	public function getAsync($url = null, array $options = [])
 	{
 		return $this->_reroute_request($url, $options, 'getAsync');
@@ -233,7 +235,7 @@ class ClientPrivate extends \GuzzleHttp\Client {
 	{
 		return $this->_reroute_request($url, $options, 'post');
 	}
-	
+
 	public function postAsync($url = null, array $options = [])
 	{
 		return $this->_reroute_request($url, $options, 'postAsync');
