@@ -8,7 +8,7 @@
    	},
     "require": {
       "guzzlehttp/oauth-subscriber": "0.3.*",
-      "bandwidth-throttle/token-bucket": "^1.1",
+      "bandwidth-throttle/token-bucket": "^2.0",
       "predis/predis": "^1.1"
     }
 
